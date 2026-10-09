@@ -56,6 +56,12 @@ spotify:track:11dFghVXANMlKmJXsNCbNl  # Carly Rae Jepsen - Cut To The Feeling
 
 ## セットアップ
 
+グループごとに自分用のコピーを作って運用します。このリポジトリの `main` はツールのリリース版で、ここに曲を送る使い方はしません。
+
+### 0. 自分用のコピーを作る
+
+このリポジトリの `main` ブランチで **Use this template**（または **Fork**）を押します。コピー先では友だちが `main` 向けにプルリクを出し、マージすると自分の Spotify プレイリストに同期されます。`playlists/` のサンプルは自分のファイルに置き換えてください。
+
 ### 1. Spotify アプリを作る
 
 1. [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) でアプリを作成します（**Web API** を選択）。
@@ -112,6 +118,10 @@ pac/__main__.py         validate / sync コマンド
 scripts/                リフレッシュトークン取得スクリプト
 .github/workflows/      PR で検証、マージで同期
 ```
+
+## ツールの開発
+
+ツール自体の開発は `develop` と `feature/*` ブランチで行い、`main` にはリリースだけを入れます。詳しくは [CONTRIBUTING.ja.md](./CONTRIBUTING.ja.md) を見てください。
 
 ## 補足
 

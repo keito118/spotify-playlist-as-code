@@ -56,6 +56,12 @@ spotify:track:11dFghVXANMlKmJXsNCbNl  # Carly Rae Jepsen - Cut To The Feeling
 
 ## Setup
 
+Each group runs its own copy. This repository's `main` branch is the released version of the tool; you don't send songs here.
+
+### 0. Make your own copy
+
+Click **Use this template** (or **Fork**) on this repository's `main` branch. In your copy, friends open pull requests into `main`, and merging syncs your Spotify playlists. Replace the sample files in `playlists/` with your own.
+
 ### 1. Create a Spotify app
 
 1. Go to the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) and create an app (select **Web API**).
@@ -112,6 +118,10 @@ pac/__main__.py         `validate` and `sync` commands
 scripts/                refresh-token helper
 .github/workflows/      validate on PR, sync on merge
 ```
+
+## Developing the tool
+
+Work on the tool itself happens on `develop` and `feature/*` branches, and `main` only receives releases. See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Notes
 
