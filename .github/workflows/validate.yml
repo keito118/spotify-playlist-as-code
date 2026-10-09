@@ -2,11 +2,9 @@ name: Validate playlists
 
 on:
   pull_request:
-    paths:
-      - "playlists/**"
-      - "pac/**"
-      - "tests/**"
-      - ".github/workflows/**"
+    branches: [develop, main]
+  push:
+    branches: [develop]
 
 permissions:
   contents: read
@@ -29,4 +27,23 @@ jobs:
           SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
           SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
           SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
-        run: python -m pac validate --base "origin/${{ github.base_ref }}" --check-online
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            python -m pac validate --base "origin/${{ github.base_ref }}" --check-online
+          else
+            python -m pac validate --base "${{ github.event.before }}"
+          fi
+
+  # main only receives releases from develop (or urgent hotfix/* branches).
+  source-branch:
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the branch being merged into main
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          case "$HEAD_REF" in
+            develop|hotfix/*) echo "OK: $HEAD_REF -> main" ;;
+            *) echo "::error::Pull requests into main must come from develop or hotfix/*, not '$HEAD_REF'. Target develop instead."; exit 1 ;;
+          esac

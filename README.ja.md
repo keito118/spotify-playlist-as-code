@@ -16,14 +16,14 @@ flowchart LR
   A[友だちが playlists/*.txt を編集] --> B[プルリク]
   B --> C[検証ワークフロー<br/>ID不正・重複・曲名確認]
   C --> D[レビュー = 聴いてコメント]
-  D --> E[main にマージ]
+  D --> E[develop 経由で main にマージ]
   E --> F[同期ワークフロー]
   F --> G[(Spotify プレイリスト)]
 ```
 
 - **1プレイリスト1ファイル、1曲1行。** `playlists/work-bgm.txt`、`playlists/drive.txt` のように分けます。ファイルの並び順がそのまま Spotify の曲順になります。
 - **プルリクが提案。** 検証ワークフローが不正な ID や重複を弾き、追加された曲を Spotify で照会して `➕ Rick Astley - Never Gonna Give You Up` のような一覧をジョブサマリーに出します。
-- **マージが公開。** `main` に push されるたび、同期ワークフローが各プレイリストをファイルの内容と完全に一致させます。
+- **`main` へのマージが公開。** 提案はまず `develop` に集まり、`main` に push されるたび、同期ワークフローが各プレイリストをファイルの内容と完全に一致させます。
 - **履歴が残る。** `git log -p playlists/drive.txt` で、誰がいつ何をなぜ足したかが分かります。
 
 ## 曲の追加方法
@@ -35,7 +35,9 @@ flowchart LR
    https://open.spotify.com/track/4uLU6hMCjMI75M1A2tKUQC  # Rick Astley - Never Gonna Give You Up
    ```
 
-3. プルリクを作ります。GitHub のブラウザ上のエディタだけで完結します。
+3. `develop` 向けにプルリクを作ります。GitHub のブラウザ上のエディタだけで完結します。
+
+Spotify に反映されるのは `develop` を `main` にマージしたときです。ブランチの運用は [CONTRIBUTING.ja.md](./CONTRIBUTING.ja.md) を見てください。
 
 書ける形式は `spotify:track:<id>`、`https://open.spotify.com/track/<id>`（`?si=…` 付きでも可）、22文字の ID そのもの、のいずれかです。
 
