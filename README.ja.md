@@ -16,14 +16,14 @@ flowchart LR
   A[友だちが playlists/*.txt を編集] --> B[プルリク]
   B --> C[検証ワークフロー<br/>ID不正・重複・曲名確認]
   C --> D[レビュー = 聴いてコメント]
-  D --> E[develop 経由で main にマージ]
+  D --> E[main にマージ]
   E --> F[同期ワークフロー]
   F --> G[(Spotify プレイリスト)]
 ```
 
 - **1プレイリスト1ファイル、1曲1行。** `playlists/work-bgm.txt`、`playlists/drive.txt` のように分けます。ファイルの並び順がそのまま Spotify の曲順になります。
 - **プルリクが提案。** 検証ワークフローが不正な ID や重複を弾き、追加された曲を Spotify で照会して `➕ Rick Astley - Never Gonna Give You Up` のような一覧をジョブサマリーに出します。
-- **`main` へのマージが公開。** 提案はまず `develop` に集まり、`main` に push されるたび、同期ワークフローが各プレイリストをファイルの内容と完全に一致させます。
+- **マージが公開。** `main` に push されるたび、同期ワークフローが各プレイリストをファイルの内容と完全に一致させます。
 - **履歴が残る。** `git log -p playlists/drive.txt` で、誰がいつ何をなぜ足したかが分かります。
 
 ## 曲の追加方法
@@ -35,9 +35,7 @@ flowchart LR
    https://open.spotify.com/track/4uLU6hMCjMI75M1A2tKUQC  # Rick Astley - Never Gonna Give You Up
    ```
 
-3. `develop` 向けにプルリクを作ります。GitHub のブラウザ上のエディタだけで完結します。
-
-Spotify に反映されるのは `develop` を `main` にマージしたときです。ブランチの運用は [CONTRIBUTING.ja.md](./CONTRIBUTING.ja.md) を見てください。
+3. プルリクを作ります。GitHub のブラウザ上のエディタだけで完結します。
 
 書ける形式は `spotify:track:<id>`、`https://open.spotify.com/track/<id>`（`?si=…` 付きでも可）、22文字の ID そのもの、のいずれかです。
 
@@ -57,6 +55,12 @@ spotify:track:11dFghVXANMlKmJXsNCbNl  # Carly Rae Jepsen - Cut To The Feeling
 | `# @title <名前>` | サマリーに表示する名前。省略時はファイル名です。 |
 
 ## セットアップ
+
+グループごとに自分用のコピーを作って運用します。このリポジトリの `main` はツールのリリース版で、ここに曲を送る使い方はしません。
+
+### 0. 自分用のコピーを作る
+
+このリポジトリの `main` ブランチで **Use this template**（または **Fork**）を押します。コピー先では友だちが `main` 向けにプルリクを出し、マージすると自分の Spotify プレイリストに同期されます。`playlists/` のサンプルは自分のファイルに置き換えてください。
 
 ### 1. Spotify アプリを作る
 
@@ -114,6 +118,10 @@ pac/__main__.py         validate / sync コマンド
 scripts/                リフレッシュトークン取得スクリプト
 .github/workflows/      PR で検証、マージで同期
 ```
+
+## ツールの開発
+
+ツール自体の開発は `develop` と `feature/*` ブランチで行い、`main` にはリリースだけを入れます。詳しくは [CONTRIBUTING.ja.md](./CONTRIBUTING.ja.md) を見てください。
 
 ## 補足
 

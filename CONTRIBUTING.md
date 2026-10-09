@@ -2,36 +2,37 @@
 
 English | [日本語](./CONTRIBUTING.ja.md)
 
+This page is about developing the tool in this repository. To run your own shared playlist, make a copy from `main` instead (see the README's Setup section).
+
 ## Branches
 
 ```mermaid
 gitGraph
-  commit id: "release"
+  commit id: "v0.1"
   branch develop
   checkout develop
-  branch feature/add-drive-songs
-  checkout feature/add-drive-songs
-  commit id: "add 2 songs"
+  branch feature/better-summary
+  checkout feature/better-summary
+  commit id: "improve PR summary"
   checkout develop
-  merge feature/add-drive-songs
+  merge feature/better-summary
   checkout main
-  merge develop id: "sync to Spotify"
+  merge develop id: "release"
 ```
 
-| Branch | Purpose | Spotify |
-| --- | --- | --- |
-| `main` | What is live. Only `develop` (or an urgent `hotfix/*`) is merged here. | Synced on every merge |
-| `develop` | Integration branch. Song proposals and code changes land here first. | Not synced |
-| `feature/<short-name>` | One proposal or change, branched from `develop`. | Not synced |
-| `hotfix/<short-name>` | Urgent fix branched from `main`; merge back into `develop` afterwards. | Synced when merged |
+| Branch | Purpose |
+| --- | --- |
+| `main` | Released version that people copy and use. Only `develop` (or an urgent `hotfix/*`) is merged here. |
+| `develop` | Integration branch for the next release. |
+| `feature/<short-name>` | One change, branched from `develop`, merged back by pull request. |
+| `hotfix/<short-name>` | Urgent fix branched from `main`; merge it into `develop` too afterwards. |
 
-## Adding songs or changing code
+## Making a change
 
-1. Branch from `develop`: `git switch develop && git pull && git switch -c feature/<short-name>`.
-2. Make the change. For songs, add one line per track to a file in `playlists/` (see the README).
-3. Open a pull request into `develop`. The validate workflow checks the files and lists the added and removed songs.
-4. Reviewers listen and approve, then merge.
+1. `git switch develop && git pull && git switch -c feature/<short-name>`
+2. Make the change and run `python -m unittest` and `python -m pac validate`.
+3. Open a pull request into `develop`. CI runs the tests and the playlist check.
 
-## Releasing to Spotify
+## Releasing
 
-Open a pull request from `develop` into `main`. Once it is merged, the sync workflow updates the Spotify playlists. Pull requests into `main` from any other branch fail the `source-branch` check.
+Open a pull request from `develop` into `main`. In this repository, pull requests into `main` from any other branch fail the `source-branch` check. Copies made from the template skip that check, so they can merge song proposals straight into `main`.

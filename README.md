@@ -16,14 +16,14 @@ flowchart LR
   A[Friend edits playlists/*.txt] --> B[Pull request]
   B --> C[Validate workflow<br/>bad IDs, duplicates, track names]
   C --> D[Review = listen and comment]
-  D --> E[Merge to develop, then main]
+  D --> E[Merge to main]
   E --> F[Sync workflow]
   F --> G[(Spotify playlist)]
 ```
 
 - **One file per playlist, one track per line.** `playlists/work-bgm.txt`, `playlists/drive.txt`, and so on. Order in the file is order in Spotify.
 - **Pull requests are proposals.** The validate workflow rejects malformed IDs and duplicates, looks up each added track on Spotify, and writes a summary like `➕ Rick Astley - Never Gonna Give You Up` to the job summary.
-- **Merging to `main` is publishing.** Proposals collect on `develop`; on every push to `main`, the sync workflow makes each Spotify playlist match its file exactly.
+- **Merging is publishing.** On every push to `main`, the sync workflow makes each Spotify playlist match its file exactly.
 - **History is free.** `git log -p playlists/drive.txt` shows who added what, when, and why.
 
 ## Adding a song
@@ -35,9 +35,7 @@ flowchart LR
    https://open.spotify.com/track/4uLU6hMCjMI75M1A2tKUQC  # Rick Astley - Never Gonna Give You Up
    ```
 
-3. Open a pull request into `develop`. You can do all of this in the GitHub web editor.
-
-Changes reach Spotify when `develop` is merged into `main`. See [CONTRIBUTING.md](./CONTRIBUTING.md) for the branch workflow.
+3. Open a pull request. You can do all of this in the GitHub web editor.
 
 Accepted forms: `spotify:track:<id>`, `https://open.spotify.com/track/<id>` (with or without `?si=…`), or the bare 22-character ID.
 
@@ -57,6 +55,12 @@ spotify:track:11dFghVXANMlKmJXsNCbNl  # Carly Rae Jepsen - Cut To The Feeling
 | `# @title <name>` | Display name used in summaries. Defaults to the file name. |
 
 ## Setup
+
+Each group runs its own copy. This repository's `main` branch is the released version of the tool; you don't send songs here.
+
+### 0. Make your own copy
+
+Click **Use this template** (or **Fork**) on this repository's `main` branch. In your copy, friends open pull requests into `main`, and merging syncs your Spotify playlists. Replace the sample files in `playlists/` with your own.
 
 ### 1. Create a Spotify app
 
@@ -114,6 +118,10 @@ pac/__main__.py         `validate` and `sync` commands
 scripts/                refresh-token helper
 .github/workflows/      validate on PR, sync on merge
 ```
+
+## Developing the tool
+
+Work on the tool itself happens on `develop` and `feature/*` branches, and `main` only receives releases. See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Notes
 

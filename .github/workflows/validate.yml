@@ -2,7 +2,6 @@ name: Validate playlists
 
 on:
   pull_request:
-    branches: [develop, main]
   push:
     branches: [develop]
 
@@ -34,9 +33,12 @@ jobs:
             python -m pac validate --base "${{ github.event.before }}"
           fi
 
-  # main only receives releases from develop (or urgent hotfix/* branches).
+  # In this repository, main only receives releases from develop (or hotfix/*).
+  # Copies made from the template skip this, so song PRs can go straight to main.
   source-branch:
-    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+    if: >-
+      github.repository == 'keito118/spotify-playlist-as-code' &&
+      github.event_name == 'pull_request' && github.base_ref == 'main'
     runs-on: ubuntu-latest
     steps:
       - name: Check the branch being merged into main
