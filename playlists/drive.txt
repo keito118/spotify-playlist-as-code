@@ -1,0 +1,4 @@
+# @title ドライブ用 (Drive)
+# To sync this file, replace this line with: # @playlist <Spotify playlist ID>
+
+https://open.spotify.com/track/4uLU6hMCjMI75M1A2tKUQC  # Rick Astley - Never Gonna Give You Up

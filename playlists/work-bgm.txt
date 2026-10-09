@@ -1,0 +1,7 @@
+# @title 作業用BGM (Work BGM)
+# To sync this file, replace this line with: # @playlist <Spotify playlist ID>
+#
+# One Spotify track per line: a URI, an open.spotify.com link, or a bare ID.
+# Add "# Artist - Title" after it so reviewers know what they are listening to.
+
+spotify:track:11dFghVXANMlKmJXsNCbNl  # Carly Rae Jepsen - Cut To The Feeling

@@ -1,0 +1,32 @@
+name: Validate playlists
+
+on:
+  pull_request:
+    paths:
+      - "playlists/**"
+      - "pac/**"
+      - "tests/**"
+      - ".github/workflows/**"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Unit tests
+        run: python -m unittest -v
+      - name: Check playlist files
+        env:
+          # Present for branches in this repo; empty for forks, which skips the online check.
+          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+          SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
+        run: python -m pac validate --base "origin/${{ github.base_ref }}" --check-online

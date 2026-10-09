@@ -1,0 +1,30 @@
+name: Sync to Spotify
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "playlists/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: spotify-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Sync playlists
+        env:
+          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+          SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
+        run: python -m pac sync
