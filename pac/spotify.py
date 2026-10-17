@@ -96,6 +96,20 @@ class Client:
                 return None
             raise
 
+    def playlist_tracks(self, playlist_id: str) -> list[dict | None]:
+        """The playlist's current tracks, in order (None for an unavailable entry)."""
+        tracks: list[dict | None] = []
+        offset = 0
+        while True:
+            page = self.request("GET", f"/playlists/{playlist_id}/items?limit=50&offset={offset}") or {}
+            entries = page.get("items", [])
+            for entry in entries:
+                # The February 2026 API calls the field "item"; older responses used "track".
+                tracks.append(entry.get("item") or entry.get("track"))
+            offset += len(entries)
+            if not page.get("next") or not entries:
+                return tracks
+
     def replace_playlist(self, playlist_id: str, uris: list[str]) -> None:
         """Make the playlist contain exactly `uris`, in order."""
         first, rest = uris[:BATCH], uris[BATCH:]
