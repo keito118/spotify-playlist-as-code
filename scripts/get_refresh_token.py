@@ -10,9 +10,9 @@ Actions secrets; never commit them.
 
 from __future__ import annotations
 
-import getpass
 import http.server
 import os
+import re
 import secrets
 import sys
 import urllib.parse
@@ -26,9 +26,26 @@ REDIRECT_URI = "http://127.0.0.1:8888/callback"
 SCOPES = "playlist-modify-public playlist-modify-private playlist-read-private"
 
 
+CREDENTIAL_RE = re.compile(r"^[0-9a-f]{32}$")
+
+
+def ask(name: str, env_var: str) -> str:
+    """Read a Client ID / Secret from the environment or the keyboard.
+
+    Input is shown on screen on purpose: hidden prompts (getpass) do not
+    accept Ctrl+V on Windows and silently store a control character instead.
+    """
+    value = os.environ.get(env_var, "").strip()
+    while not CREDENTIAL_RE.match(value):
+        if value:
+            print(f"That doesn't look like a {name} (32 characters, 0-9 and a-f). Try again.")
+        value = input(f"{name}: ").strip()
+    return value
+
+
 def main() -> None:
-    client_id = os.environ.get("SPOTIFY_CLIENT_ID") or input("Client ID: ").strip()
-    client_secret = os.environ.get("SPOTIFY_CLIENT_SECRET") or getpass.getpass("Client Secret: ").strip()
+    client_id = ask("Client ID", "SPOTIFY_CLIENT_ID")
+    client_secret = ask("Client Secret", "SPOTIFY_CLIENT_SECRET")
     state = secrets.token_urlsafe(16)
     result: dict[str, str] = {}
 
