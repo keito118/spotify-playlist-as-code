@@ -85,6 +85,8 @@ spotify:track:11dFghVXANMlKmJXsNCbNl  # Carly Rae Jepsen - Cut To The Feeling
 
 このリポジトリの `main` ブランチで **Use this template**（または **Fork**）を押します。コピー先では友だちが `main` 向けにプルリクを出し、マージすると自分の Spotify プレイリストに同期されます。`playlists/` のサンプルは自分のファイルに置き換えてください。
 
+`.github/` にあるワークフローと **🎵 Add a song** の Issue フォームはコピーにそのまま入ります。シークレットとリポジトリの設定は引き継がれないので、手順 3 で設定します。Fork した場合は、**Settings → General → Features** で **Issues** をオンにし、**Actions** タブでワークフローを有効にしてください。Fork ではどちらも最初はオフです。
+
 ### 1. Spotify アプリを作る
 
 1. [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) でアプリを作成します（**Web API** を選択）。
