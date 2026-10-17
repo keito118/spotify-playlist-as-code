@@ -37,6 +37,16 @@ flowchart LR
 
 ## 曲の追加方法
 
+### かんたんな方法：Issue にリンクを貼る
+
+1. Spotify で曲のリンクをコピーします（共有 → 曲のリンクをコピー）。
+2. 新しい Issue を作り、**🎵 Add a song** を選びます。リンクを貼り、よければ選んだ理由も書きます。
+3. bot が Spotify で曲を調べ、プレイリストのファイルに追加して、プルリクを代わりに作ります。Issue にプルリクのリンクが返ってきます。
+
+リンクが間違っている、またはすでに入っている曲の場合は、bot が Issue でそう伝えます。
+
+### ファイルを自分で編集する方法
+
 1. Spotify で曲のリンクをコピーします（共有 → 曲のリンクをコピー）。
 2. プレイリストのファイルに1行追加します。レビューする人が分かるようにメモも付けます。
 
@@ -115,6 +125,8 @@ Spotify の同意画面が開き、リフレッシュトークンが表示され
 
 シークレットがなくても両方のワークフローは動きます。検証は Spotify への照会を省略し、同期はドライランになります。
 
+**🎵 Add a song** の Issue フォームからプルリクを作れるように、**Settings → Actions → General → Workflow permissions** で **Allow GitHub Actions to create and approve pull requests** をオンにしてください。
+
 ### 4. ファイルとプレイリストをひもづける
 
 Spotify でプレイリストを作ってリンクをコピーし、ファイルに `# @playlist https://open.spotify.com/playlist/…` と書きます。マージすると同期ワークフローが曲を入れます。
@@ -129,6 +141,7 @@ python -m unittest                  # テスト
 python -m pac validate              # 全ファイルを検証
 python -m pac validate --base main  # main からの差分も表示
 python -m pac sync --dry-run        # 同期内容を確認だけする
+python -m pac add <曲のリンク> --playlist drive  # ファイルに曲を追加
 ```
 
 標準ライブラリのみで動きます（Python 3.10 以上）。
@@ -139,9 +152,11 @@ python -m pac sync --dry-run        # 同期内容を確認だけする
 playlists/              プレイリストごとの .txt
 pac/playlist.py         ファイルの解析と検証ルール
 pac/spotify.py          最小限の Spotify Web API クライアント (urllib)
-pac/__main__.py         validate / sync コマンド
+pac/add.py, pac/issue.py  Issue フォームからの曲の追加
+pac/__main__.py         validate / sync / add コマンド
 scripts/                リフレッシュトークン取得スクリプト
-.github/workflows/      PR で検証、マージで同期
+.github/workflows/      PR で検証、マージで同期、Issue から曲を追加
+.github/ISSUE_TEMPLATE/ 「Add a song」の Issue フォーム
 ```
 
 ## ツールの開発

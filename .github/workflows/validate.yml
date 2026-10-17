@@ -4,6 +4,8 @@ on:
   pull_request:
   push:
     branches: [develop, main]
+  # Started by the "Add song from issue" workflow for the pull requests it opens.
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -26,12 +28,16 @@ jobs:
           SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
           SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
           SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
+          EVENT: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          BEFORE: ${{ github.event.before }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            python -m pac validate --base "origin/${{ github.base_ref }}" --check-online
-          else
-            python -m pac validate --base "${{ github.event.before }}"
-          fi
+          case "$EVENT" in
+            pull_request) python -m pac validate --base "origin/$BASE_REF" --check-online ;;
+            workflow_dispatch) python -m pac validate --base "origin/$DEFAULT_BRANCH" --check-online ;;
+            *) python -m pac validate --base "$BEFORE" ;;
+          esac
 
   # In this repository, main only receives releases from develop (or hotfix/*).
   # Copies made from the template skip this, so song PRs can go straight to main.

@@ -1,0 +1,93 @@
+name: Add song from issue
+
+# Turns an "Add a song" issue into a pull request that adds the song to a
+# playlist file. Needs "Allow GitHub Actions to create and approve pull
+# requests" (Settings → Actions → General → Workflow permissions).
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  actions: write
+
+concurrency:
+  group: add-song
+  cancel-in-progress: false
+
+jobs:
+  # This repository holds the tool itself, so point song suggestions to the live example.
+  redirect:
+    if: >-
+      github.repository == 'keito118/spotify-playlist-as-code' &&
+      (contains(github.event.issue.labels.*.name, 'add-song') || startsWith(github.event.issue.title, '[Song]'))
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      NUMBER: ${{ github.event.issue.number }}
+    steps:
+      - run: |
+          gh issue comment "$NUMBER" --repo "$GITHUB_REPOSITORY" --body "Thanks! 🎶 This repository is the tool itself, so songs aren't added here. Please suggest it at [Open Source Mixtape](https://github.com/keito118/open-source-mixtape/issues/new?template=add-song.yml), the playlist that runs on this tool."
+          gh issue close "$NUMBER" --repo "$GITHUB_REPOSITORY" --reason "not planned"
+
+  add:
+    if: >-
+      github.repository != 'keito118/spotify-playlist-as-code' &&
+      (contains(github.event.issue.labels.*.name, 'add-song') || startsWith(github.event.issue.title, '[Song]'))
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      NUMBER: ${{ github.event.issue.number }}
+      DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Add the song to the playlist file
+        id: add
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          PR_BODY_FILE: ${{ runner.temp }}/pr-body.md
+          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+          SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
+        run: python -m pac add --from-issue
+
+      - name: Open the pull request
+        if: steps.add.outputs.ok == 'true'
+        env:
+          LABEL: ${{ steps.add.outputs.label }}
+          AUTHOR: ${{ github.event.issue.user.login }}
+          AUTHOR_ID: ${{ github.event.issue.user.id }}
+          PR_BODY_FILE: ${{ runner.temp }}/pr-body.md
+        run: |
+          branch="song/issue-$NUMBER"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add playlists
+          git commit -m "Add $LABEL" -m "Suggested in #$NUMBER." \
+            -m "Co-authored-by: $AUTHOR <$AUTHOR_ID+$AUTHOR@users.noreply.github.com>"
+          git push --force -u origin "$branch"
+          url=$(gh pr create --base "$DEFAULT_BRANCH" --head "$branch" --title "Add $LABEL" --body-file "$PR_BODY_FILE")
+          # Pull requests opened with GITHUB_TOKEN don't trigger other workflows, so start the check here.
+          gh workflow run validate.yml --ref "$branch"
+          gh issue comment "$NUMBER" --body "Thanks! 🎶 I added **$LABEL** and opened $url. It goes into the playlist once it's merged."
+
+      - name: Explain what went wrong
+        if: steps.add.outputs.ok == 'false'
+        env:
+          ERROR: ${{ steps.add.outputs.error }}
+        run: |
+          printf '%s\n\n%s\n' "Sorry, I couldn't add this song: $ERROR" \
+            "Please open a new issue with the corrected link." > "$RUNNER_TEMP/comment.md"
+          gh issue comment "$NUMBER" --body-file "$RUNNER_TEMP/comment.md"
+          gh issue close "$NUMBER" --reason "not planned"
