@@ -5,6 +5,11 @@
   Friends propose songs by pull request, review them by listening, and merging to <code>main</code> updates the real playlist.
 </p>
 
+<p align="center">
+  <a href="https://github.com/keito118/spotify-playlist-as-code/actions/workflows/validate.yml"><img src="https://github.com/keito118/spotify-playlist-as-code/actions/workflows/validate.yml/badge.svg?branch=main" alt="Validate playlists" /></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
+</p>
+
 <p align="center">English | <a href="./README.ja.md">日本語</a></p>
 
 ---
@@ -56,6 +61,12 @@ spotify:track:11dFghVXANMlKmJXsNCbNl  # Carly Rae Jepsen - Cut To The Feeling
 
 ## Setup
 
+Each group runs its own copy. This repository's `main` branch is the released version of the tool; you don't send songs here.
+
+### 0. Make your own copy
+
+Click **Use this template** (or **Fork**) on this repository's `main` branch. In your copy, friends open pull requests into `main`, and merging syncs your Spotify playlists. Replace the sample files in `playlists/` with your own.
+
 ### 1. Create a Spotify app
 
 1. Go to the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) and create an app (select **Web API**).
@@ -66,11 +77,23 @@ Spotify's development mode requires the app owner to have Spotify Premium.
 
 ### 2. Get a refresh token (on your own computer)
 
+In a clone of your copy (or a folder from **Code → Download ZIP**), run:
+
 ```bash
 python scripts/get_refresh_token.py
 ```
 
 It opens Spotify's consent page and prints a refresh token. The token can edit your playlists, so keep it out of the repository.
+
+<details>
+<summary>Troubleshooting</summary>
+
+- **macOS: `CERTIFICATE_VERIFY_FAILED`.** Python from python.org needs its certificates installed once. Run `open "/Applications/Python 3.x/Install Certificates.command"` (use your version number), then run the script again.
+- **`invalid_client: Invalid client secret`.** The secret was mistyped or pasted with extra characters. Copy it again from the dashboard, or set it first with `export SPOTIFY_CLIENT_SECRET=...` (macOS/Linux) or `$env:SPOTIFY_CLIENT_SECRET = "..."` (Windows PowerShell).
+- **`INVALID_CLIENT: Invalid redirect URI` in the browser.** Add `http://127.0.0.1:8888/callback` to the app's redirect URIs exactly as written.
+- **`python` not found.** Use `python3` on macOS and Linux, or install Python 3.10+ from python.org.
+
+</details>
 
 ### 3. Add repository secrets
 
@@ -112,6 +135,10 @@ pac/__main__.py         `validate` and `sync` commands
 scripts/                refresh-token helper
 .github/workflows/      validate on PR, sync on merge
 ```
+
+## Developing the tool
+
+Work on the tool itself happens on `develop` and `feature/*` branches, and `main` only receives releases. See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Notes
 
