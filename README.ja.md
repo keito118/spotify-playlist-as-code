@@ -5,6 +5,11 @@
   友だちが曲をプルリクで提案し、聴いてレビューし、<code>main</code> にマージすると本物のプレイリストに反映されます。
 </p>
 
+<p align="center">
+  <a href="https://github.com/keito118/spotify-playlist-as-code/actions/workflows/validate.yml"><img src="https://github.com/keito118/spotify-playlist-as-code/actions/workflows/validate.yml/badge.svg?branch=main" alt="Validate playlists" /></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
+</p>
+
 <p align="center"><a href="./README.md">English</a> | 日本語</p>
 
 ---
@@ -72,11 +77,23 @@ Spotify の開発モードでは、アプリ所有者が Spotify Premium に加�
 
 ### 2. リフレッシュトークンを取得する（自分の PC で）
 
+コピーしたリポジトリを clone したフォルダ（または **Code → Download ZIP** で展開したフォルダ）で実行します。
+
 ```bash
 python scripts/get_refresh_token.py
 ```
 
 Spotify の同意画面が開き、リフレッシュトークンが表示されます。このトークンでプレイリストを編集できるので、リポジトリには絶対に入れないでください。
+
+<details>
+<summary>うまくいかないとき</summary>
+
+- **macOS で `CERTIFICATE_VERIFY_FAILED`**：python.org から入れた Python は、最初に一度だけ証明書のインストールが必要です。`open "/Applications/Python 3.x/Install Certificates.command"`（3.x は自分のバージョン）を実行してから、もう一度スクリプトを実行してください。
+- **`invalid_client: Invalid client secret`**：Secret の入力ミスか、余計な文字が入っています。Dashboard からコピーし直すか、先に `export SPOTIFY_CLIENT_SECRET=...`（macOS/Linux）または `$env:SPOTIFY_CLIENT_SECRET = "..."`（Windows PowerShell）で設定してから実行してください。
+- **ブラウザに `INVALID_CLIENT: Invalid redirect URI`**：アプリのリダイレクト URI に `http://127.0.0.1:8888/callback` を一字一句そのまま追加してください。
+- **`python` が見つからない**：macOS / Linux では `python3` を使うか、python.org から Python 3.10 以上を入れてください。
+
+</details>
 
 ### 3. リポジトリのシークレットを登録する
 
