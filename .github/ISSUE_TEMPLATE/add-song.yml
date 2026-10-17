@@ -1,0 +1,29 @@
+name: 🎵 Add a song
+description: Paste a Spotify song link. A bot adds it to the playlist file and opens a pull request for you.
+title: "[Song] "
+labels: ["add-song"]
+body:
+  - type: input
+    id: link
+    attributes:
+      label: Song link
+      description: In Spotify, open the song and choose Share → Copy Song Link.
+      placeholder: https://open.spotify.com/track/...
+    validations:
+      required: true
+  - type: input
+    id: playlist
+    attributes:
+      label: Playlist
+      description: Only needed when this repository has more than one playlist. Use the file name in playlists/ (without .txt).
+      placeholder: drive
+  - type: textarea
+    id: why
+    attributes:
+      label: Why this one?
+      description: One line is enough.
+  - type: input
+    id: from
+    attributes:
+      label: Listening from
+      description: Optional. City or country.

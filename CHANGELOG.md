@@ -8,6 +8,10 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- **Add a song from an issue.** A new **🎵 Add a song** issue form takes just a Spotify link. The *Add song from issue* workflow looks the song up, appends it to the playlist file, opens the pull request, and starts the playlist check on it. It explains on the issue when a link is wrong or the song is already there.
+- `python -m pac add <link> [--playlist NAME]` appends a song to a playlist file from the command line.
+- *Validate playlists* can be started manually (`workflow_dispatch`), which the new workflow uses for the pull requests it opens.
+
 - README links to [Open Source Mixtape](https://github.com/keito118/open-source-mixtape), a public playlist running on this tool.
 
 ## [0.1.1] - 2026-10-17
