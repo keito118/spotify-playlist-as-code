@@ -8,6 +8,8 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- **Use the tool as a GitHub Action.** `action.yml` runs `validate`, `sync`, `status` and `add-song`, checking out the repository and setting up Python itself. The workflows in the template are now one step each that call `keito118/spotify-playlist-as-code@v1`, so copies get 1.x updates without copying files. See "Upgrading a copy made before 1.2.0" in the README.
+- Tool-only `ci.yml` (unit tests, plus this branch's action against the sample playlists) and `release.yml`, which moves the `vX` tag to each release.
 - **Credits for each song.** The Playlist status table and the track list image now show who added each song (`@login`), taken from the git history of the playlist file. Songs added through the issue form are credited to the person who opened the issue. The status and sync workflows now check out the full history for this.
 
 ## [1.1.0] - 2026-10-17

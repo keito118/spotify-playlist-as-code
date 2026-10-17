@@ -16,37 +16,12 @@ concurrency:
 
 jobs:
   sync:
+    if: github.repository != 'keito118/spotify-playlist-as-code'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: keito118/spotify-playlist-as-code@v1
         with:
-          fetch-depth: 0  # full history, to credit who added each song
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-      - name: Sync playlists
-        env:
-          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
-          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
-          SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
-        run: python -m pac sync
-      - name: Show what is on Spotify now
-        continue-on-error: true
-        env:
-          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
-          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
-          SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
-          GITHUB_TOKEN: ${{ github.token }}
-        run: python -m pac status --image-dir _tracklist
-      - name: Publish the track list image
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          [ -n "$(ls -A _tracklist 2>/dev/null)" ] || { echo "No image to publish."; exit 0; }
-          cd _tracklist
-          git init -q -b tracklist
-          git add .
-          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
-            commit -qm "Update the track list image"
-          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" tracklist
+          command: sync
+          spotify-client-id: ${{ secrets.SPOTIFY_CLIENT_ID }}
+          spotify-client-secret: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+          spotify-refresh-token: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}

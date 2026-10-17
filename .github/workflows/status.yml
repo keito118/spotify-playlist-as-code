@@ -8,18 +8,12 @@ permissions:
 
 jobs:
   status:
+    if: github.repository != 'keito118/spotify-playlist-as-code'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: keito118/spotify-playlist-as-code@v1
         with:
-          fetch-depth: 0  # full history, to credit who added each song
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-      - name: Show what is on Spotify
-        env:
-          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
-          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
-          SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
-          GITHUB_TOKEN: ${{ github.token }}
-        run: python -m pac status
+          command: status
+          spotify-client-id: ${{ secrets.SPOTIFY_CLIENT_ID }}
+          spotify-client-secret: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+          spotify-refresh-token: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}

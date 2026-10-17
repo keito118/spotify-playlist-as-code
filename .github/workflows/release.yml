@@ -1,0 +1,28 @@
+name: Move the major version tag
+
+# When vX.Y.Z is released, point vX at it, so copies using
+# keito118/spotify-playlist-as-code@vX get the update.
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    if: github.repository == 'keito118/spotify-playlist-as-code' && !github.event.release.prerelease
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.release.tag_name }}
+      - name: Move the tag
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          major="${TAG%%.*}"
+          case "$major" in v[0-9]*) ;; *) echo "::error::Unexpected tag '$TAG'"; exit 1 ;; esac
+          git tag -f "$major"
+          git push -f origin "refs/tags/$major"
