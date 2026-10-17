@@ -19,6 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0  # full history, to credit who added each song
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
@@ -34,6 +36,7 @@ jobs:
           SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
           SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
           SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: python -m pac status --image-dir _tracklist
       - name: Publish the track list image
         continue-on-error: true

@@ -33,7 +33,7 @@ flowchart LR
 - **One file per playlist, one track per line.** `playlists/work-bgm.txt`, `playlists/drive.txt`, and so on. Order in the file is order in Spotify.
 - **Pull requests are proposals.** The validate workflow rejects malformed IDs and duplicates, looks up each added track on Spotify, and writes a summary like `➕ Rick Astley - Never Gonna Give You Up` to the job summary.
 - **Merging is publishing.** On every push to `main`, the sync workflow makes each Spotify playlist match its file exactly.
-- **See what's live.** Run **Actions → Playlist status → Run workflow** to get a table of what's on Spotify right now, and whether it matches the file. Every sync also ends with that table, and saves it as an image you can show in your README (see step 5).
+- **See what's live.** Run **Actions → Playlist status → Run workflow** to get a table of what's on Spotify right now, who added each song, and whether it matches the file. Every sync also ends with that table, and saves it as an image you can show in your README (see step 5).
 - **History is free.** `git log -p playlists/drive.txt` shows who added what, when, and why.
 
 ## Adding a song
@@ -139,7 +139,7 @@ Create a playlist in Spotify, copy its link, and put it in the file as `# @playl
 
 ### 5. Show the track list in your README (optional)
 
-After each sync, the workflow draws the playlist's current tracks as an image and pushes it to a `tracklist` branch, one `<file name>.svg` per playlist file. The bot can't commit to a protected `main`, so the image lives on that branch and your README points at it:
+After each sync, the workflow draws the playlist's current tracks, with who added each one, as an image and pushes it to a `tracklist` branch, one `<file name>.svg` per playlist file. The bot can't commit to a protected `main`, so the image lives on that branch and your README points at it:
 
 ```markdown
 [![Track list](https://raw.githubusercontent.com/<you>/<repo>/tracklist/<file name>.svg)](https://open.spotify.com/playlist/<playlist id>)
@@ -169,6 +169,7 @@ pac/playlist.py         file parser and validation rules
 pac/spotify.py          minimal Spotify Web API client (urllib)
 pac/add.py, pac/issue.py  adding songs from the issue form
 pac/card.py             the track list image
+pac/credits.py          who added each song (from git history)
 pac/__main__.py         `validate`, `sync`, `status` and `add` commands
 scripts/                refresh-token helper
 .github/workflows/      validate on PR, sync on merge, playlist status, add songs from issues

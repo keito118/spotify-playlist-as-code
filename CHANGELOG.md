@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **Credits for each song.** The Playlist status table and the track list image now show who added each song (`@login`), taken from the git history of the playlist file. Songs added through the issue form are credited to the person who opened the issue. The status and sync workflows now check out the full history for this.
+
 ## [1.1.0] - 2026-10-17
 
 ### Added
