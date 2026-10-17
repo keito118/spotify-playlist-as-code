@@ -2,6 +2,7 @@
 
     python -m pac validate [--base origin/main] [--check-online]
     python -m pac sync [--dry-run]
+    python -m pac status
     python -m pac add <link> [--playlist NAME]
     python -m pac add --from-issue          # used by the "Add a song" workflow
 """
@@ -141,6 +142,54 @@ def cmd_sync(args) -> int:
     return 0
 
 
+def status_lines(pl: Playlist, tracks: list[dict | None]) -> list[str]:
+    """Markdown for one playlist: what Spotify has now, and how it differs from the file."""
+    url = f"https://open.spotify.com/playlist/{pl.spotify_id}"
+    live_ids = [t.get("id") if t else None for t in tracks]
+    file_ids = [t.id for t in pl.tracks]
+    if live_ids == file_ids:
+        state = "✅ matches the file"
+    else:
+        state = "⚠️ differs from the file (the next sync will fix it)"
+    lines = [f"### [{pl.name}]({url}): {len(tracks)} tracks, {state}", ""]
+    if tracks:
+        lines += ["| # | Song | Artist |", "|---:|---|---|"]
+        for i, t in enumerate(tracks, 1):
+            if not t:
+                lines.append(f"| {i} | _(unavailable)_ | |")
+                continue
+            title = t.get("name", "?").replace("|", "\\|")
+            artists = ", ".join(a["name"] for a in t.get("artists", [])).replace("|", "\\|")
+            link = (t.get("external_urls") or {}).get("spotify")
+            lines.append(f"| {i} | {f'[{title}]({link})' if link else title} | {artists} |")
+        lines.append("")
+    missing = [t for t in pl.tracks if t.id not in set(live_ids)]
+    extra = [t for t in tracks if t and t.get("id") not in set(file_ids)]
+    for t in missing:
+        lines.append(f"- ➖ In the file but not on Spotify: {label(t)}")
+    for t in extra:
+        lines.append(f"- ➕ On Spotify but not in the file: {label(None, t)}")
+    if missing or extra:
+        lines.append("")
+    return lines
+
+
+def cmd_status(args) -> int:
+    playlists = load_dir(PLAYLIST_DIR)
+    if not spotify.have_credentials():
+        write_summary("## 🎧 Playlist status\n\nSpotify secrets are not set, so the live playlists can't be read.")
+        return 0
+    client = spotify.Client.from_env()
+    lines = ["## 🎧 Playlist status", ""]
+    for pl in playlists:
+        if not pl.spotify_id:
+            lines += [f"- ⏭️ {pl.name}: no `@playlist` ID, skipped", ""]
+            continue
+        lines += status_lines(pl, client.playlist_tracks(pl.spotify_id))
+    write_summary("\n".join(lines))
+    return 0
+
+
 def set_output(name: str, value: str) -> None:
     target = os.environ.get("GITHUB_OUTPUT")
     if target:
@@ -229,6 +278,9 @@ def main(argv: list[str] | None = None) -> int:
     s = sub.add_parser("sync", help="push playlist files to Spotify")
     s.add_argument("--dry-run", action="store_true")
     s.set_defaults(func=cmd_sync)
+
+    st = sub.add_parser("status", help="show what is on Spotify right now")
+    st.set_defaults(func=cmd_status)
 
     a = sub.add_parser("add", help="append a song to a playlist file")
     a.add_argument("link", nargs="?", help="Spotify song link, URI or ID")

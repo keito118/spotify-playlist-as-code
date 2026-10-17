@@ -33,6 +33,7 @@ flowchart LR
 - **1プレイリスト1ファイル、1曲1行。** `playlists/work-bgm.txt`、`playlists/drive.txt` のように分けます。ファイルの並び順がそのまま Spotify の曲順になります。
 - **プルリクが提案。** 検証ワークフローが不正な ID や重複を弾き、追加された曲を Spotify で照会して `➕ Rick Astley - Never Gonna Give You Up` のような一覧をジョブサマリーに出します。
 - **マージが公開。** `main` に push されるたび、同期ワークフローが各プレイリストをファイルの内容と完全に一致させます。
+- **今の中身が見られる。** **Actions → Playlist status → Run workflow** を実行すると、いま Spotify に入っている曲の一覧と、ファイルと一致しているかが表で出ます。同期のたびにも最後に同じ表が出ます。
 - **履歴が残る。** `git log -p playlists/drive.txt` で、誰がいつ何をなぜ足したかが分かります。
 
 ## 曲の追加方法
@@ -144,6 +145,7 @@ python -m pac validate              # 全ファイルを検証
 python -m pac validate --base main  # main からの差分も表示
 python -m pac sync --dry-run        # 同期内容を確認だけする
 python -m pac add <曲のリンク> --playlist drive  # ファイルに曲を追加
+python -m pac status                # いま Spotify にある曲を一覧（シークレットが必要）
 ```
 
 標準ライブラリのみで動きます（Python 3.10 以上）。
@@ -155,9 +157,9 @@ playlists/              プレイリストごとの .txt
 pac/playlist.py         ファイルの解析と検証ルール
 pac/spotify.py          最小限の Spotify Web API クライアント (urllib)
 pac/add.py, pac/issue.py  Issue フォームからの曲の追加
-pac/__main__.py         validate / sync / add コマンド
+pac/__main__.py         validate / sync / status / add コマンド
 scripts/                リフレッシュトークン取得スクリプト
-.github/workflows/      PR で検証、マージで同期、Issue から曲を追加
+.github/workflows/      PR で検証、マージで同期、プレイリストの状況確認、Issue から曲を追加
 .github/ISSUE_TEMPLATE/ 「Add a song」の Issue フォーム
 ```
 

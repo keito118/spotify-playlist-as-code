@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **See what's on Spotify.** `python -m pac status` and the new **Playlist status** workflow (run it from the Actions tab) list each playlist's current tracks in the job summary and flag any difference from the file. **Sync to Spotify** now ends with the same list.
+
 ## [1.0.0] - 2026-10-17
 
 The playlist file format and workflows are now stable: changes that would break an existing copy will bump the major version.

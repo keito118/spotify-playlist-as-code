@@ -33,6 +33,7 @@ flowchart LR
 - **One file per playlist, one track per line.** `playlists/work-bgm.txt`, `playlists/drive.txt`, and so on. Order in the file is order in Spotify.
 - **Pull requests are proposals.** The validate workflow rejects malformed IDs and duplicates, looks up each added track on Spotify, and writes a summary like `➕ Rick Astley - Never Gonna Give You Up` to the job summary.
 - **Merging is publishing.** On every push to `main`, the sync workflow makes each Spotify playlist match its file exactly.
+- **See what's live.** Run **Actions → Playlist status → Run workflow** to get a table of what's on Spotify right now, and whether it matches the file. Every sync also ends with that table.
 - **History is free.** `git log -p playlists/drive.txt` shows who added what, when, and why.
 
 ## Adding a song
@@ -144,6 +145,7 @@ python -m pac validate              # check every playlist file
 python -m pac validate --base main  # also show what changed since main
 python -m pac sync --dry-run        # show what would be synced
 python -m pac add <song link> --playlist drive  # append a song to a file
+python -m pac status                # list what's on Spotify now (needs the secrets)
 ```
 
 Standard library only; Python 3.10 or later.
@@ -155,9 +157,9 @@ playlists/              one .txt per playlist
 pac/playlist.py         file parser and validation rules
 pac/spotify.py          minimal Spotify Web API client (urllib)
 pac/add.py, pac/issue.py  adding songs from the issue form
-pac/__main__.py         `validate`, `sync` and `add` commands
+pac/__main__.py         `validate`, `sync`, `status` and `add` commands
 scripts/                refresh-token helper
-.github/workflows/      validate on PR, sync on merge, add songs from issues
+.github/workflows/      validate on PR, sync on merge, playlist status, add songs from issues
 .github/ISSUE_TEMPLATE/ the "Add a song" issue form
 ```
 
