@@ -5,6 +5,11 @@
   Friends propose songs by pull request, review them by listening, and merging to <code>main</code> updates the real playlist.
 </p>
 
+<p align="center">
+  <a href="https://github.com/keito118/spotify-playlist-as-code/actions/workflows/validate.yml"><img src="https://github.com/keito118/spotify-playlist-as-code/actions/workflows/validate.yml/badge.svg?branch=main" alt="Validate playlists" /></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
+</p>
+
 <p align="center">English | <a href="./README.ja.md">日本語</a></p>
 
 ---
@@ -72,11 +77,23 @@ Spotify's development mode requires the app owner to have Spotify Premium.
 
 ### 2. Get a refresh token (on your own computer)
 
+In a clone of your copy (or a folder from **Code → Download ZIP**), run:
+
 ```bash
 python scripts/get_refresh_token.py
 ```
 
 It opens Spotify's consent page and prints a refresh token. The token can edit your playlists, so keep it out of the repository.
+
+<details>
+<summary>Troubleshooting</summary>
+
+- **macOS: `CERTIFICATE_VERIFY_FAILED`.** Python from python.org needs its certificates installed once. Run `open "/Applications/Python 3.x/Install Certificates.command"` (use your version number), then run the script again.
+- **`invalid_client: Invalid client secret`.** The secret was mistyped or pasted with extra characters. Copy it again from the dashboard, or set it first with `export SPOTIFY_CLIENT_SECRET=...` (macOS/Linux) or `$env:SPOTIFY_CLIENT_SECRET = "..."` (Windows PowerShell).
+- **`INVALID_CLIENT: Invalid redirect URI` in the browser.** Add `http://127.0.0.1:8888/callback` to the app's redirect URIs exactly as written.
+- **`python` not found.** Use `python3` on macOS and Linux, or install Python 3.10+ from python.org.
+
+</details>
 
 ### 3. Add repository secrets
 

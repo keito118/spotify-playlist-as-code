@@ -35,4 +35,4 @@ gitGraph
 
 ## Releasing
 
-Open a pull request from `develop` into `main`. In this repository, pull requests into `main` from any other branch fail the `source-branch` check. Copies made from the template skip that check, so they can merge song proposals straight into `main`.
+Before releasing, move the `[Unreleased]` notes in `CHANGELOG.md` under a new version heading and bump `pac/__version__`. Then open a pull request from `develop` into `main`, and after it is merged, tag the merge commit (`vX.Y.Z`) and publish a GitHub Release with the same notes. In this repository, pull requests into `main` from any other branch fail the `source-branch` check. Copies made from the template skip that check, so they can merge song proposals straight into `main`.

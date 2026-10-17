@@ -12,7 +12,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from . import spotify
+from . import __version__, spotify
 from .playlist import Playlist, Problem, load_dir, parse
 
 PLAYLIST_DIR = Path("playlists")
@@ -138,6 +138,7 @@ def cmd_sync(args) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="pac", description="Playlist as Code")
+    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     sub = parser.add_subparsers(dest="command", required=True)
 
     v = sub.add_parser("validate", help="check playlist files and summarise changes")
