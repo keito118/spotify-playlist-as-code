@@ -85,6 +85,8 @@ Each group runs its own copy. This repository's `main` branch is the released ve
 
 Click **Use this template** (or **Fork**) on this repository's `main` branch. In your copy, friends open pull requests into `main`, and merging syncs your Spotify playlists. Replace the sample files in `playlists/` with your own.
 
+The workflows and the **🎵 Add a song** issue form in `.github/` come along with the copy. Secrets and repository settings don't, so step 3 sets them. If you fork, also turn on **Issues** in **Settings → General → Features** and enable workflows on the **Actions** tab, since a fork starts with both off.
+
 ### 1. Create a Spotify app
 
 1. Go to the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard) and create an app (select **Web API**).
