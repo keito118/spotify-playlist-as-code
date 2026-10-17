@@ -6,6 +6,13 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-17
+
+### Added
+
+- **See what's on Spotify.** `python -m pac status` and the new **Playlist status** workflow (run it from the Actions tab) list each playlist's current tracks in the job summary and flag any difference from the file. **Sync to Spotify** now ends with the same list.
+- **Track list image for your README.** After each sync, the workflow draws each playlist's current tracks as `<file name>.svg` and pushes it to a `tracklist` branch, so a README can show it without the bot committing to `main`. `python -m pac status --image-dir DIR` writes the same images locally.
+
 ## [1.0.0] - 2026-10-17
 
 The playlist file format and workflows are now stable: changes that would break an existing copy will bump the major version.
@@ -41,7 +48,8 @@ First public release.
 - Uses the playlist `/items` endpoints from Spotify's February 2026 Web API changes. Spotify's development mode requires the app owner to have Spotify Premium.
 - Standard library only; Python 3.10 or later.
 
-[Unreleased]: https://github.com/keito118/spotify-playlist-as-code/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/keito118/spotify-playlist-as-code/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/keito118/spotify-playlist-as-code/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/keito118/spotify-playlist-as-code/compare/v0.1.1...v1.0.0
 [0.1.1]: https://github.com/keito118/spotify-playlist-as-code/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/keito118/spotify-playlist-as-code/releases/tag/v0.1.0
