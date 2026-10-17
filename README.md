@@ -37,6 +37,16 @@ flowchart LR
 
 ## Adding a song
 
+### The easy way: paste a link in an issue
+
+1. Copy the track link in Spotify (Share → Copy Song Link).
+2. Open a new issue and pick **🎵 Add a song**. Paste the link, and optionally say why you picked it.
+3. A bot looks the song up on Spotify, adds it to the playlist file, and opens the pull request for you. It replies on the issue with the link.
+
+If the link is wrong or the song is already in the playlist, the bot says so on the issue instead.
+
+### Editing the file yourself
+
 1. Copy the track link in Spotify (Share → Copy Song Link).
 2. Add a line to the playlist file, with a note so reviewers know what it is:
 
@@ -115,6 +125,8 @@ In **Settings → Secrets and variables → Actions → New repository secret**,
 
 Without secrets, both workflows still run: validation skips the online lookup and sync runs as a dry run.
 
+To let the **🎵 Add a song** issue form open pull requests, turn on **Allow GitHub Actions to create and approve pull requests** in **Settings → Actions → General → Workflow permissions**.
+
 ### 4. Point a file at a playlist
 
 Create a playlist in Spotify, copy its link, and put it in the file as `# @playlist https://open.spotify.com/playlist/…`. Merge, and the sync workflow fills it.
@@ -129,6 +141,7 @@ python -m unittest                  # tests
 python -m pac validate              # check every playlist file
 python -m pac validate --base main  # also show what changed since main
 python -m pac sync --dry-run        # show what would be synced
+python -m pac add <song link> --playlist drive  # append a song to a file
 ```
 
 Standard library only; Python 3.10 or later.
@@ -139,9 +152,11 @@ Standard library only; Python 3.10 or later.
 playlists/              one .txt per playlist
 pac/playlist.py         file parser and validation rules
 pac/spotify.py          minimal Spotify Web API client (urllib)
-pac/__main__.py         `validate` and `sync` commands
+pac/add.py, pac/issue.py  adding songs from the issue form
+pac/__main__.py         `validate`, `sync` and `add` commands
 scripts/                refresh-token helper
-.github/workflows/      validate on PR, sync on merge
+.github/workflows/      validate on PR, sync on merge, add songs from issues
+.github/ISSUE_TEMPLATE/ the "Add a song" issue form
 ```
 
 ## Developing the tool

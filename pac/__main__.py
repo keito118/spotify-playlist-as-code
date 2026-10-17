@@ -2,17 +2,22 @@
 
     python -m pac validate [--base origin/main] [--check-online]
     python -m pac sync [--dry-run]
+    python -m pac add <link> [--playlist NAME]
+    python -m pac add --from-issue          # used by the "Add a song" workflow
 """
 
 from __future__ import annotations
 
 import argparse
 import os
+import secrets
 import subprocess
 import sys
 from pathlib import Path
 
 from . import __version__, spotify
+from .add import AddError, append_track, pick_playlist, track_label
+from .issue import find_track, parse_form
 from .playlist import Playlist, Problem, load_dir, parse
 
 PLAYLIST_DIR = Path("playlists")
@@ -136,6 +141,81 @@ def cmd_sync(args) -> int:
     return 0
 
 
+def set_output(name: str, value: str) -> None:
+    target = os.environ.get("GITHUB_OUTPUT")
+    if target:
+        delimiter = f"__PAC_{secrets.token_hex(8)}__"
+        with open(target, "a", encoding="utf-8") as f:
+            f.write(f"{name}<<{delimiter}\n{value}\n{delimiter}\n")
+
+
+def add_track(ref: str, playlist_name: str) -> tuple[Playlist, str, str]:
+    """Append the track to a playlist file; return the playlist, its label and the line written."""
+    track_id = find_track(ref)
+    if track_id is None:
+        raise AddError(
+            "That doesn't look like a Spotify song link. In Spotify, use Share → Copy Song Link "
+            "and paste it (album and playlist links don't work)."
+        )
+    pl = pick_playlist(load_dir(PLAYLIST_DIR), playlist_name)
+    label = ""
+    if spotify.have_credentials():
+        info = spotify.Client.from_env().get_track(track_id)
+        if info is None:
+            raise AddError(f"Spotify doesn't know the track `{track_id}`. Please check the link.")
+        label = track_label(info)
+    line = append_track(pl, track_id, label)
+    return pl, label or track_id, line
+
+
+def issue_pr_body(fields: dict[str, str], label: str) -> str:
+    why = fields.get("Why this one?") or "_Not given._"
+    where = fields.get("Listening from") or "_Not given._"
+    author = os.environ.get("ISSUE_AUTHOR", "")
+    number = os.environ.get("ISSUE_NUMBER", "")
+    lines = [
+        "## 🎵 Song(s)",
+        "",
+        label,
+        "",
+        "## Why this one?",
+        "",
+        why,
+        "",
+        "## Listening from (optional)",
+        "",
+        where,
+    ]
+    if number:
+        lines += ["", f"Suggested by @{author} in #{number}. Closes #{number}."]
+    return "\n".join(lines) + "\n"
+
+
+def cmd_add(args) -> int:
+    fields = parse_form(os.environ.get("ISSUE_BODY", "")) if args.from_issue else {}
+    ref = fields.get("Song link", "") if args.from_issue else (args.link or "")
+    playlist_name = args.playlist or fields.get("Playlist", "")
+    try:
+        pl, label, line = add_track(ref, playlist_name)
+    except AddError as e:
+        print(f"error: {e}", file=sys.stderr)
+        if not args.from_issue:
+            return 1
+        set_output("ok", "false")
+        set_output("error", str(e))
+        return 0
+
+    print(f"Added to {pl.path}: {line}")
+    if args.from_issue:
+        set_output("ok", "true")
+        set_output("label", label)
+        set_output("file", pl.path)
+        body_file = os.environ.get("PR_BODY_FILE")
+        if body_file:
+            Path(body_file).write_text(issue_pr_body(fields, label), encoding="utf-8")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="pac", description="Playlist as Code")
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
@@ -150,7 +230,15 @@ def main(argv: list[str] | None = None) -> int:
     s.add_argument("--dry-run", action="store_true")
     s.set_defaults(func=cmd_sync)
 
+    a = sub.add_parser("add", help="append a song to a playlist file")
+    a.add_argument("link", nargs="?", help="Spotify song link, URI or ID")
+    a.add_argument("--playlist", help="playlist file name or @title (needed when there are several)")
+    a.add_argument("--from-issue", action="store_true", help="read the link from the ISSUE_BODY issue form")
+    a.set_defaults(func=cmd_add)
+
     args = parser.parse_args(argv)
+    if args.command == "add" and not (args.link or args.from_issue):
+        parser.error("add needs a song link (or --from-issue)")
     return args.func(args)
 
 
