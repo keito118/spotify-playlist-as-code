@@ -33,7 +33,7 @@ flowchart LR
 - **1プレイリスト1ファイル、1曲1行。** `playlists/work-bgm.txt`、`playlists/drive.txt` のように分けます。ファイルの並び順がそのまま Spotify の曲順になります。
 - **プルリクが提案。** 検証ワークフローが不正な ID や重複を弾き、追加された曲を Spotify で照会して `➕ Rick Astley - Never Gonna Give You Up` のような一覧をジョブサマリーに出します。
 - **マージが公開。** `main` に push されるたび、同期ワークフローが各プレイリストをファイルの内容と完全に一致させます。
-- **今の中身が見られる。** **Actions → Playlist status → Run workflow** を実行すると、いま Spotify に入っている曲の一覧と、ファイルと一致しているかが表で出ます。同期のたびにも最後に同じ表が出て、README に載せられる画像としても保存されます（手順 5）。
+- **今の中身が見られる。** **Actions → Playlist status → Run workflow** を実行すると、いま Spotify に入っている曲の一覧、それぞれ誰が追加したか、ファイルと一致しているかが表で出ます。同期のたびにも最後に同じ表が出て、README に載せられる画像としても保存されます（手順 5）。
 - **履歴が残る。** `git log -p playlists/drive.txt` で、誰がいつ何をなぜ足したかが分かります。
 
 ## 曲の追加方法
@@ -139,7 +139,7 @@ Spotify でプレイリストを作ってリンクをコピーし、ファイル
 
 ### 5. README に曲の一覧を載せる（任意）
 
-同期のたびに、ワークフローがプレイリストの今の曲を画像にして `tracklist` ブランチに push します。プレイリストのファイルごとに `<ファイル名>.svg` ができます。ボットは保護された `main` にはコミットできないので、画像はこのブランチに置き、README からはそれを表示します。
+同期のたびに、ワークフローがプレイリストの今の曲を、追加した人の名前つきで画像にして `tracklist` ブランチに push します。プレイリストのファイルごとに `<ファイル名>.svg` ができます。ボットは保護された `main` にはコミットできないので、画像はこのブランチに置き、README からはそれを表示します。
 
 ```markdown
 [![Track list](https://raw.githubusercontent.com/<you>/<repo>/tracklist/<ファイル名>.svg)](https://open.spotify.com/playlist/<プレイリストID>)
@@ -169,6 +169,7 @@ pac/playlist.py         ファイルの解析と検証ルール
 pac/spotify.py          最小限の Spotify Web API クライアント (urllib)
 pac/add.py, pac/issue.py  Issue フォームからの曲の追加
 pac/card.py             曲一覧の画像
+pac/credits.py          曲を追加した人（git の履歴から）
 pac/__main__.py         validate / sync / status / add コマンド
 scripts/                リフレッシュトークン取得スクリプト
 .github/workflows/      PR で検証、マージで同期、プレイリストの状況確認、Issue から曲を追加

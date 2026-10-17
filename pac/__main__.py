@@ -16,7 +16,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from . import __version__, card, spotify
+from . import __version__, card, credits, spotify
 from .add import AddError, append_track, pick_playlist, track_label
 from .issue import find_track, parse_form
 from .playlist import Playlist, Problem, load_dir, parse
@@ -142,7 +142,7 @@ def cmd_sync(args) -> int:
     return 0
 
 
-def status_lines(pl: Playlist, tracks: list[dict | None]) -> list[str]:
+def status_lines(pl: Playlist, tracks: list[dict | None], added_by: dict[str, str] | None = None) -> list[str]:
     """Markdown for one playlist: what Spotify has now, and how it differs from the file."""
     url = f"https://open.spotify.com/playlist/{pl.spotify_id}"
     live_ids = [t.get("id") if t else None for t in tracks]
@@ -153,15 +153,17 @@ def status_lines(pl: Playlist, tracks: list[dict | None]) -> list[str]:
         state = "⚠️ differs from the file (the next sync will fix it)"
     lines = [f"### [{pl.name}]({url}): {len(tracks)} tracks, {state}", ""]
     if tracks:
-        lines += ["| # | Song | Artist |", "|---:|---|---|"]
+        added_by = added_by or {}
+        lines += ["| # | Song | Artist | Added by |", "|---:|---|---|---|"]
         for i, t in enumerate(tracks, 1):
             if not t:
-                lines.append(f"| {i} | _(unavailable)_ | |")
+                lines.append(f"| {i} | _(unavailable)_ | | |")
                 continue
             title = t.get("name", "?").replace("|", "\\|")
             artists = ", ".join(a["name"] for a in t.get("artists", [])).replace("|", "\\|")
             link = (t.get("external_urls") or {}).get("spotify")
-            lines.append(f"| {i} | {f'[{title}]({link})' if link else title} | {artists} |")
+            who = added_by.get(t.get("id", ""), "").replace("|", "\\|")
+            lines.append(f"| {i} | {f'[{title}]({link})' if link else title} | {artists} | {who} |")
         lines.append("")
     missing = [t for t in pl.tracks if t.id not in set(live_ids)]
     extra = [t for t in tracks if t and t.get("id") not in set(file_ids)]
@@ -186,11 +188,12 @@ def cmd_status(args) -> int:
             lines += [f"- ⏭️ {pl.name}: no `@playlist` ID, skipped", ""]
             continue
         tracks = client.playlist_tracks(pl.spotify_id)
-        lines += status_lines(pl, tracks)
+        added_by = credits.song_credits(pl)
+        lines += status_lines(pl, tracks, added_by)
         if args.image_dir:
             out = Path(args.image_dir) / f"{Path(pl.path).stem}.svg"
             out.parent.mkdir(parents=True, exist_ok=True)
-            out.write_text(card.render(pl.name, tracks), encoding="utf-8")
+            out.write_text(card.render(pl.name, tracks, added_by), encoding="utf-8")
     write_summary("\n".join(lines))
     return 0
 
