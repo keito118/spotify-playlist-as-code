@@ -9,6 +9,7 @@ All notable changes to this project are documented here. The format follows
 ### Added
 
 - **See what's on Spotify.** `python -m pac status` and the new **Playlist status** workflow (run it from the Actions tab) list each playlist's current tracks in the job summary and flag any difference from the file. **Sync to Spotify** now ends with the same list.
+- **Track list image for your README.** After each sync, the workflow draws each playlist's current tracks as `<file name>.svg` and pushes it to a `tracklist` branch, so a README can show it without the bot committing to `main`. `python -m pac status --image-dir DIR` writes the same images locally.
 
 ## [1.0.0] - 2026-10-17
 

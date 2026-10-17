@@ -2,7 +2,7 @@
 
     python -m pac validate [--base origin/main] [--check-online]
     python -m pac sync [--dry-run]
-    python -m pac status
+    python -m pac status [--image-dir DIR]
     python -m pac add <link> [--playlist NAME]
     python -m pac add --from-issue          # used by the "Add a song" workflow
 """
@@ -16,7 +16,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from . import __version__, spotify
+from . import __version__, card, spotify
 from .add import AddError, append_track, pick_playlist, track_label
 from .issue import find_track, parse_form
 from .playlist import Playlist, Problem, load_dir, parse
@@ -185,7 +185,12 @@ def cmd_status(args) -> int:
         if not pl.spotify_id:
             lines += [f"- ⏭️ {pl.name}: no `@playlist` ID, skipped", ""]
             continue
-        lines += status_lines(pl, client.playlist_tracks(pl.spotify_id))
+        tracks = client.playlist_tracks(pl.spotify_id)
+        lines += status_lines(pl, tracks)
+        if args.image_dir:
+            out = Path(args.image_dir) / f"{Path(pl.path).stem}.svg"
+            out.parent.mkdir(parents=True, exist_ok=True)
+            out.write_text(card.render(pl.name, tracks), encoding="utf-8")
     write_summary("\n".join(lines))
     return 0
 
@@ -280,6 +285,7 @@ def main(argv: list[str] | None = None) -> int:
     s.set_defaults(func=cmd_sync)
 
     st = sub.add_parser("status", help="show what is on Spotify right now")
+    st.add_argument("--image-dir", help="also write <playlist>.svg track list images here")
     st.set_defaults(func=cmd_status)
 
     a = sub.add_parser("add", help="append a song to a playlist file")
