@@ -5,15 +5,16 @@ from datetime import datetime, timezone
 from pac import card
 
 
-def track(name, *artists):
-    return {"name": name, "artists": [{"name": a} for a in artists]}
+def track(name, *artists, track_id=None):
+    return {"id": track_id or name.lower(), "name": name, "artists": [{"name": a} for a in artists]}
 
 
 class CardTest(unittest.TestCase):
     def test_renders_valid_svg_with_every_track(self):
         svg = card.render(
             "Mix <&>",
-            [track("Kitsch", "IVE"), None, track("A & B", "C", "D")],
+            [track("Kitsch", "IVE", track_id="k"), None, track("A & B", "C", "D")],
+            credits={"k": "@alice"},
             now=datetime(2026, 10, 17, 18, 0, tzinfo=timezone.utc),
         )
         root = ET.fromstring(svg)  # raises if the XML is broken
@@ -24,6 +25,8 @@ class CardTest(unittest.TestCase):
         self.assertIn("(unavailable)", text)
         self.assertIn("A & B", text)
         self.assertIn("C, D", text)
+        self.assertIn("@alice", text)
+        self.assertEqual(text.count("@"), 1)
         self.assertIn("updated 2026-10-17 18:00 UTC", text)
 
     def test_height_grows_with_tracks(self):

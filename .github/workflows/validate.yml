@@ -3,7 +3,7 @@ name: Validate playlists
 on:
   pull_request:
   push:
-    branches: [develop, main]
+    branches: [main]
   # Started by the "Add song from issue" workflow for the pull requests it opens.
   workflow_dispatch:
 
@@ -12,46 +12,14 @@ permissions:
 
 jobs:
   validate:
+    # The tool's own repository tests its code in ci.yml instead.
+    if: github.repository != 'keito118/spotify-playlist-as-code'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: keito118/spotify-playlist-as-code@v1
         with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-      - name: Unit tests
-        run: python -m unittest -v
-      - name: Check playlist files
-        env:
-          # Present for branches in this repo; empty for forks, which skips the online check.
-          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
-          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
-          SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
-          EVENT: ${{ github.event_name }}
-          BASE_REF: ${{ github.base_ref }}
-          BEFORE: ${{ github.event.before }}
-          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
-        run: |
-          case "$EVENT" in
-            pull_request) python -m pac validate --base "origin/$BASE_REF" --check-online ;;
-            workflow_dispatch) python -m pac validate --base "origin/$DEFAULT_BRANCH" --check-online ;;
-            *) python -m pac validate --base "$BEFORE" ;;
-          esac
-
-  # In this repository, main only receives releases from develop (or hotfix/*).
-  # Copies made from the template skip this, so song PRs can go straight to main.
-  source-branch:
-    if: >-
-      github.repository == 'keito118/spotify-playlist-as-code' &&
-      github.event_name == 'pull_request' && github.base_ref == 'main'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check the branch being merged into main
-        env:
-          HEAD_REF: ${{ github.head_ref }}
-        run: |
-          case "$HEAD_REF" in
-            develop|hotfix/*) echo "OK: $HEAD_REF -> main" ;;
-            *) echo "::error::Pull requests into main must come from develop or hotfix/*, not '$HEAD_REF'. Target develop instead."; exit 1 ;;
-          esac
+          command: validate
+          # Empty for pull requests from forks, which skips the online lookup.
+          spotify-client-id: ${{ secrets.SPOTIFY_CLIENT_ID }}
+          spotify-client-secret: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+          spotify-refresh-token: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}

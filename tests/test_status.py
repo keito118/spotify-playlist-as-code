@@ -39,9 +39,9 @@ class PlaylistTracksTest(unittest.TestCase):
 
 class StatusLinesTest(unittest.TestCase):
     def test_matching_playlist_lists_tracks(self):
-        text = "\n".join(status_lines(playlist(A, B), [track(A, "One|Two"), track(B)]))
+        text = "\n".join(status_lines(playlist(A, B), [track(A, "One|Two"), track(B)], {A: "@alice"}))
         self.assertIn("2 tracks, ✅ matches the file", text)
-        self.assertIn(f"| 1 | [One\\|Two](https://open.spotify.com/track/{A}) | Artist |", text)
+        self.assertIn(f"| 1 | [One\\|Two](https://open.spotify.com/track/{A}) | Artist | @alice |", text)
         self.assertNotIn("➖", text)
 
     def test_reports_differences(self):

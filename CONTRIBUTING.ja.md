@@ -31,8 +31,8 @@ gitGraph
 
 1. `git switch develop && git pull && git switch -c feature/<短い名前>`
 2. 変更して `python -m unittest` と `python -m pac validate` を実行します。
-3. `develop` 向けにプルリクを作ります。CI がテストとプレイリストのチェックを実行します。
+3. `develop` 向けにプルリクを作ります。CI がテストを実行し、このブランチの Action（`uses: ./`）でサンプルのプレイリストをチェックします。
 
 ## リリース
 
-リリース前に `CHANGELOG.md` の `[Unreleased]` を新しいバージョンの見出しに移し、`pac/__version__` を上げます。そのうえで `develop` から `main` へのプルリクを作り、マージ後にそのコミットへタグ（`vX.Y.Z`）を付けて、同じ内容で GitHub Release を公開します。このリポジトリでは、`develop` 以外から `main` へのプルリクは `source-branch` チェックで失敗します。テンプレートから作ったコピーではこのチェックは動かないので、曲の提案をそのまま `main` にマージできます。
+リリース前に `CHANGELOG.md` の `[Unreleased]` を新しいバージョンの見出しに移し、`pac/__version__` を上げます。そのうえで `develop` から `main` へのプルリクを作り、マージ後に `main` へ新しいタグ `vX.Y.Z` を作って、同じ内容で GitHub Release を公開します。すると *Move the major version tag* ワークフローが `vX` タグをそのリリースに移し、`@vX` を使っているコピーに更新が届きます。新しいコピーは `@vX` を呼ぶので、マージしたらすぐ公開してください。このリポジトリでは、`develop` 以外から `main` へのプルリクは `source-branch` チェックで失敗します。テンプレートから作ったコピーではこのチェックは動かないので、曲の提案をそのまま `main` にマージできます。

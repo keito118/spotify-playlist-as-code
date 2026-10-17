@@ -1,0 +1,53 @@
+name: CI
+
+# Tests the tool itself. Runs only in keito118/spotify-playlist-as-code;
+# copies made from the template can delete this file.
+
+on:
+  pull_request:
+  push:
+    branches: [develop, main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    if: github.repository == 'keito118/spotify-playlist-as-code'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Unit tests
+        run: python -m unittest -v
+
+  # Runs this branch's action against the sample playlists, the way a copy uses it.
+  action:
+    if: github.repository == 'keito118/spotify-playlist-as-code'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./
+        with:
+          command: validate
+      - uses: ./
+        with:
+          command: status
+
+  # In this repository, main only receives releases from develop (or hotfix/*).
+  source-branch:
+    if: >-
+      github.repository == 'keito118/spotify-playlist-as-code' &&
+      github.event_name == 'pull_request' && github.base_ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the branch being merged into main
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          case "$HEAD_REF" in
+            develop|hotfix/*) echo "OK: $HEAD_REF -> main" ;;
+            *) echo "::error::Pull requests into main must come from develop or hotfix/*, not '$HEAD_REF'. Target develop instead."; exit 1 ;;
+          esac

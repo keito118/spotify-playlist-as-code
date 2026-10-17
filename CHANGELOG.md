@@ -6,6 +6,14 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-17
+
+### Added
+
+- **Use the tool as a GitHub Action.** `action.yml` runs `validate`, `sync`, `status` and `add-song`, checking out the repository and setting up Python itself. The workflows in the template are now one step each that call `keito118/spotify-playlist-as-code@v1`, so copies get 1.x updates without copying files. See "Upgrading a copy made before 1.2.0" in the README.
+- Tool-only `ci.yml` (unit tests, plus this branch's action against the sample playlists) and `release.yml`, which moves the `vX` tag to each release.
+- **Credits for each song.** The Playlist status table and the track list image now show who added each song (`@login`), taken from the git history of the playlist file. Songs added through the issue form are credited to the person who opened the issue. The status and sync workflows now check out the full history for this.
+
 ## [1.1.0] - 2026-10-17
 
 ### Added
@@ -48,7 +56,8 @@ First public release.
 - Uses the playlist `/items` endpoints from Spotify's February 2026 Web API changes. Spotify's development mode requires the app owner to have Spotify Premium.
 - Standard library only; Python 3.10 or later.
 
-[Unreleased]: https://github.com/keito118/spotify-playlist-as-code/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/keito118/spotify-playlist-as-code/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/keito118/spotify-playlist-as-code/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/keito118/spotify-playlist-as-code/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/keito118/spotify-playlist-as-code/compare/v0.1.1...v1.0.0
 [0.1.1]: https://github.com/keito118/spotify-playlist-as-code/compare/v0.1.0...v0.1.1

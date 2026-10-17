@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/keito118/spotify-playlist-as-code/actions/workflows/validate.yml"><img src="https://github.com/keito118/spotify-playlist-as-code/actions/workflows/validate.yml/badge.svg?branch=main" alt="Validate playlists" /></a>
+  <a href="https://github.com/keito118/spotify-playlist-as-code/actions/workflows/ci.yml"><img src="https://github.com/keito118/spotify-playlist-as-code/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI" /></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
 </p>
 
@@ -33,7 +33,7 @@ flowchart LR
 - **1プレイリスト1ファイル、1曲1行。** `playlists/work-bgm.txt`、`playlists/drive.txt` のように分けます。ファイルの並び順がそのまま Spotify の曲順になります。
 - **プルリクが提案。** 検証ワークフローが不正な ID や重複を弾き、追加された曲を Spotify で照会して `➕ Rick Astley - Never Gonna Give You Up` のような一覧をジョブサマリーに出します。
 - **マージが公開。** `main` に push されるたび、同期ワークフローが各プレイリストをファイルの内容と完全に一致させます。
-- **今の中身が見られる。** **Actions → Playlist status → Run workflow** を実行すると、いま Spotify に入っている曲の一覧と、ファイルと一致しているかが表で出ます。同期のたびにも最後に同じ表が出て、README に載せられる画像としても保存されます（手順 5）。
+- **今の中身が見られる。** **Actions → Playlist status → Run workflow** を実行すると、いま Spotify に入っている曲の一覧、それぞれ誰が追加したか、ファイルと一致しているかが表で出ます。同期のたびにも最後に同じ表が出て、README に載せられる画像としても保存されます（手順 5）。
 - **履歴が残る。** `git log -p playlists/drive.txt` で、誰がいつ何をなぜ足したかが分かります。
 
 ## 曲の追加方法
@@ -86,7 +86,9 @@ spotify:track:11dFghVXANMlKmJXsNCbNl  # Carly Rae Jepsen - Cut To The Feeling
 
 このリポジトリの `main` ブランチで **Use this template**（または **Fork**）を押します。コピー先では友だちが `main` 向けにプルリクを出し、マージすると自分の Spotify プレイリストに同期されます。`playlists/` のサンプルは自分のファイルに置き換えてください。
 
-`.github/` にあるワークフローと **🎵 Add a song** の Issue フォームはコピーにそのまま入ります。シークレットとリポジトリの設定は引き継がれないので、手順 3 で設定します。Fork した場合は、**Settings → General → Features** で **Issues** をオンにし、**Actions** タブでワークフローを有効にしてください。Fork ではどちらも最初はオフです。
+`.github/` にあるワークフローと **🎵 Add a song** の Issue フォームはコピーにそのまま入ります。シークレットとリポジトリの設定は引き継がれないので、手順 3 で設定します。
+
+ワークフローはこのツールを GitHub Action（`keito118/spotify-playlist-as-code@v1`）として呼び出すので、1.x の新しいリリースはファイルをコピーしなくてもそのまま届きます。コピーに必要なのは `playlists/`、`.github/`（このリポジトリでしか動かない `ci.yml` と `release.yml` は除く）、手順 2 で使う `scripts/` だけです。`pac/`、`tests/`、`action.yml`、`CHANGELOG.md`、`CONTRIBUTING*.md` は消してかまいません。Fork した場合は、**Settings → General → Features** で **Issues** をオンにし、**Actions** タブでワークフローを有効にしてください。Fork ではどちらも最初はオフです。
 
 ### 1. Spotify アプリを作る
 
@@ -139,13 +141,40 @@ Spotify でプレイリストを作ってリンクをコピーし、ファイル
 
 ### 5. README に曲の一覧を載せる（任意）
 
-同期のたびに、ワークフローがプレイリストの今の曲を画像にして `tracklist` ブランチに push します。プレイリストのファイルごとに `<ファイル名>.svg` ができます。ボットは保護された `main` にはコミットできないので、画像はこのブランチに置き、README からはそれを表示します。
+同期のたびに、ワークフローがプレイリストの今の曲を、追加した人の名前つきで画像にして `tracklist` ブランチに push します。プレイリストのファイルごとに `<ファイル名>.svg` ができます。ボットは保護された `main` にはコミットできないので、画像はこのブランチに置き、README からはそれを表示します。
 
 ```markdown
 [![Track list](https://raw.githubusercontent.com/<you>/<repo>/tracklist/<ファイル名>.svg)](https://open.spotify.com/playlist/<プレイリストID>)
 ```
 
 ブランチはシークレットを設定したあとの最初の同期でできます。手動で更新したいときは **Actions → Sync to Spotify → Run workflow** を実行してください。すべてのブランチを保護している場合は、`tracklist` をルールの対象から外してください。
+
+## GitHub Action としての使い方
+
+どのワークフローも、`command` を指定してこの Action を呼ぶ1ステップだけです。
+
+```yaml
+- uses: keito118/spotify-playlist-as-code@v1
+  with:
+    command: sync          # validate / sync / status / add-song
+    spotify-client-id: ${{ secrets.SPOTIFY_CLIENT_ID }}
+    spotify-client-secret: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+    spotify-refresh-token: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
+```
+
+| 入力 | 使うコマンド | 既定値 | 内容 |
+| --- | --- | --- | --- |
+| `command` | すべて | （必須） | `validate` はファイルを検証して追加された曲を一覧、`sync` は Spotify と曲一覧の画像を更新、`status` は Spotify の今の中身を表示、`add-song` は「Add a song」の Issue をプルリクにします。 |
+| `spotify-client-id`、`spotify-client-secret`、`spotify-refresh-token` | すべて | 空 | Spotify の認証情報。ないと validate はオンライン照会を省き、sync はドライランになります。 |
+| `github-token` | すべて | `github.token` | git の push、プルリク、Issue コメント、追加した人の表示に使います。 |
+| `tracklist-branch` | `sync` | `tracklist` | 曲一覧の画像を置くブランチ。空にすると作りません。 |
+| `validate-workflow` | `add-song` | `validate.yml` | 作ったプルリクで起動するワークフロー。空にすると起動しません。 |
+
+Action が自分でリポジトリをチェックアウトするので、ワークフローに他のステップは要りません。`@v1` にしておけば 1.x の修正や機能追加が自動で入り、`@v1.2.0` のように固定すればそのままです。
+
+### 1.2.0 より前に作ったコピーの更新方法
+
+このリポジトリの `.github/workflows/` から4つのワークフロー（`validate.yml`、`sync.yml`、`status.yml`、`add-song.yml`）を自分のリポジトリにコピーして置き換え、`pac/` と `tests/` を消してください。以降の更新は `@v1` で自動的に届きます。
 
 ## ローカルでの実行
 
@@ -169,9 +198,12 @@ pac/playlist.py         ファイルの解析と検証ルール
 pac/spotify.py          最小限の Spotify Web API クライアント (urllib)
 pac/add.py, pac/issue.py  Issue フォームからの曲の追加
 pac/card.py             曲一覧の画像
+pac/credits.py          曲を追加した人（git の履歴から）
 pac/__main__.py         validate / sync / status / add コマンド
 scripts/                リフレッシュトークン取得スクリプト
+action.yml              ワークフローが呼び出す GitHub Action
 .github/workflows/      PR で検証、マージで同期、プレイリストの状況確認、Issue から曲を追加
+                        （ci.yml と release.yml はこのリポジトリでのみ動作）
 .github/ISSUE_TEMPLATE/ 「Add a song」の Issue フォーム
 ```
 

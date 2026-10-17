@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/keito118/spotify-playlist-as-code/actions/workflows/validate.yml"><img src="https://github.com/keito118/spotify-playlist-as-code/actions/workflows/validate.yml/badge.svg?branch=main" alt="Validate playlists" /></a>
+  <a href="https://github.com/keito118/spotify-playlist-as-code/actions/workflows/ci.yml"><img src="https://github.com/keito118/spotify-playlist-as-code/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI" /></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
 </p>
 
@@ -33,7 +33,7 @@ flowchart LR
 - **One file per playlist, one track per line.** `playlists/work-bgm.txt`, `playlists/drive.txt`, and so on. Order in the file is order in Spotify.
 - **Pull requests are proposals.** The validate workflow rejects malformed IDs and duplicates, looks up each added track on Spotify, and writes a summary like `➕ Rick Astley - Never Gonna Give You Up` to the job summary.
 - **Merging is publishing.** On every push to `main`, the sync workflow makes each Spotify playlist match its file exactly.
-- **See what's live.** Run **Actions → Playlist status → Run workflow** to get a table of what's on Spotify right now, and whether it matches the file. Every sync also ends with that table, and saves it as an image you can show in your README (see step 5).
+- **See what's live.** Run **Actions → Playlist status → Run workflow** to get a table of what's on Spotify right now, who added each song, and whether it matches the file. Every sync also ends with that table, and saves it as an image you can show in your README (see step 5).
 - **History is free.** `git log -p playlists/drive.txt` shows who added what, when, and why.
 
 ## Adding a song
@@ -86,7 +86,9 @@ Each group runs its own copy. This repository's `main` branch is the released ve
 
 Click **Use this template** (or **Fork**) on this repository's `main` branch. In your copy, friends open pull requests into `main`, and merging syncs your Spotify playlists. Replace the sample files in `playlists/` with your own.
 
-The workflows and the **🎵 Add a song** issue form in `.github/` come along with the copy. Secrets and repository settings don't, so step 3 sets them. If you fork, also turn on **Issues** in **Settings → General → Features** and enable workflows on the **Actions** tab, since a fork starts with both off.
+The workflows and the **🎵 Add a song** issue form in `.github/` come along with the copy. Secrets and repository settings don't, so step 3 sets them.
+
+The workflows run this tool as a GitHub Action, `keito118/spotify-playlist-as-code@v1`, so new 1.x releases reach your copy without copying any files. Your copy only needs `playlists/`, `.github/` (minus `ci.yml` and `release.yml`, which only run here) and `scripts/` for step 2. You can delete `pac/`, `tests/`, `action.yml`, `CHANGELOG.md` and `CONTRIBUTING*.md`. If you fork, also turn on **Issues** in **Settings → General → Features** and enable workflows on the **Actions** tab, since a fork starts with both off.
 
 ### 1. Create a Spotify app
 
@@ -139,13 +141,40 @@ Create a playlist in Spotify, copy its link, and put it in the file as `# @playl
 
 ### 5. Show the track list in your README (optional)
 
-After each sync, the workflow draws the playlist's current tracks as an image and pushes it to a `tracklist` branch, one `<file name>.svg` per playlist file. The bot can't commit to a protected `main`, so the image lives on that branch and your README points at it:
+After each sync, the workflow draws the playlist's current tracks, with who added each one, as an image and pushes it to a `tracklist` branch, one `<file name>.svg` per playlist file. The bot can't commit to a protected `main`, so the image lives on that branch and your README points at it:
 
 ```markdown
 [![Track list](https://raw.githubusercontent.com/<you>/<repo>/tracklist/<file name>.svg)](https://open.spotify.com/playlist/<playlist id>)
 ```
 
 The branch appears after the first sync with secrets set. To refresh it by hand, run **Actions → Sync to Spotify → Run workflow**. If you protect every branch, leave `tracklist` out of the rule.
+
+## Using the GitHub Action
+
+Every workflow is one step that calls the action with a `command`:
+
+```yaml
+- uses: keito118/spotify-playlist-as-code@v1
+  with:
+    command: sync          # validate, sync, status or add-song
+    spotify-client-id: ${{ secrets.SPOTIFY_CLIENT_ID }}
+    spotify-client-secret: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+    spotify-refresh-token: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
+```
+
+| Input | Used by | Default | What it does |
+| --- | --- | --- | --- |
+| `command` | all | (required) | `validate` checks the playlist files and lists added songs; `sync` updates Spotify and the track list image; `status` shows what's on Spotify; `add-song` turns an "Add a song" issue into a pull request. |
+| `spotify-client-id`, `spotify-client-secret`, `spotify-refresh-token` | all | empty | Spotify credentials. Without them, validate skips the online lookup and sync is a dry run. |
+| `github-token` | all | `github.token` | Used for git pushes, pull requests, issue comments and credits. |
+| `tracklist-branch` | `sync` | `tracklist` | Branch that receives the track list images. Empty to skip. |
+| `validate-workflow` | `add-song` | `validate.yml` | Workflow to start on the pull request it opens. Empty to skip. |
+
+The action checks out the repository itself, so the workflow needs no other steps. Pin `@v1` to get fixes and features within 1.x, or a full version such as `@v1.2.0` to stay put.
+
+### Upgrading a copy made before 1.2.0
+
+Copy the four workflow files (`validate.yml`, `sync.yml`, `status.yml`, `add-song.yml`) from this repository's `.github/workflows/` into yours, replacing the old ones. Then delete `pac/` and `tests/`. From then on, updates arrive through `@v1`.
 
 ## Running locally
 
@@ -169,9 +198,12 @@ pac/playlist.py         file parser and validation rules
 pac/spotify.py          minimal Spotify Web API client (urllib)
 pac/add.py, pac/issue.py  adding songs from the issue form
 pac/card.py             the track list image
+pac/credits.py          who added each song (from git history)
 pac/__main__.py         `validate`, `sync`, `status` and `add` commands
 scripts/                refresh-token helper
+action.yml              the GitHub Action that the workflows call
 .github/workflows/      validate on PR, sync on merge, playlist status, add songs from issues
+                        (ci.yml and release.yml only run in this repository)
 .github/ISSUE_TEMPLATE/ the "Add a song" issue form
 ```
 
