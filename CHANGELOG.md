@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- README links to [Open Source Mixtape](https://github.com/keito118/open-source-mixtape), a public playlist running on this tool.
+
 ## [0.1.1] - 2026-10-17
 
 ### Fixed

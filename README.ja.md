@@ -12,6 +12,10 @@
 
 <p align="center"><a href="./README.md">English</a> | 日本語</p>
 
+> [!TIP]
+> **🎶 みんなでプレイリスト作ろうぜ！**
+> このツールで動いている [**Open Source Mixtape**](https://github.com/keito118/open-source-mixtape) には、世界中の誰でも曲を追加できます。好きな曲をプルリクで送って、マージされたら [Spotify のプレイリスト](https://open.spotify.com/playlist/6RrEtS1qX6csamOV6ET74Q)に入ります。準備はいりません、ブラウザだけで OK。気軽にどうぞ！🚀
+
 ---
 
 ## しくみ
@@ -58,6 +62,10 @@ spotify:track:11dFghVXANMlKmJXsNCbNl  # Carly Rae Jepsen - Cut To The Feeling
 | --- | --- |
 | `# @playlist <ID または URL>` | 同期先の Spotify プレイリスト。この行がないファイルは検証だけされ、同期されません。 |
 | `# @title <名前>` | サマリーに表示する名前。省略時はファイル名です。 |
+
+## 実際に動いている例
+
+[**Open Source Mixtape**](https://github.com/keito118/open-source-mixtape) は、このツールで運用している公開プレイリストです。曲を追加するプルリクを出すと、チェックと同期が実際に動くところを見られます。
 
 ## セットアップ
 

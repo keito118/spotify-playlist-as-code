@@ -12,6 +12,10 @@
 
 <p align="center">English | <a href="./README.ja.md">日本語</a></p>
 
+> [!TIP]
+> **🎶 Come build a playlist with us!**
+> [**Open Source Mixtape**](https://github.com/keito118/open-source-mixtape) runs on this tool, and anyone in the world can add a song. Drop your favorite track in a pull request, and once it's merged it's on [the Spotify playlist](https://open.spotify.com/playlist/6RrEtS1qX6csamOV6ET74Q). No setup needed, just your browser. Let's go! 🚀
+
 ---
 
 ## How it works
@@ -58,6 +62,10 @@ spotify:track:11dFghVXANMlKmJXsNCbNl  # Carly Rae Jepsen - Cut To The Feeling
 | --- | --- |
 | `# @playlist <id or URL>` | The Spotify playlist this file syncs to. Files without it are validated but not synced. |
 | `# @title <name>` | Display name used in summaries. Defaults to the file name. |
+
+## See it live
+
+[**Open Source Mixtape**](https://github.com/keito118/open-source-mixtape) is a public playlist run with this tool. Open a pull request there to add a song, and watch the checks and the sync work for real.
 
 ## Setup
 
