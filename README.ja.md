@@ -130,7 +130,7 @@ Spotify の同意画面が開き、リフレッシュトークンが表示され
 
 シークレットがなくても両方のワークフローは動きます。検証は Spotify への照会を省略し、同期はドライランになります。
 
-**🎵 Add a song** の Issue フォームからプルリクを作れるように、**Settings → Actions → General → Workflow permissions** で **Allow GitHub Actions to create and approve pull requests** をオンにしてください。
+**🎵 Add a song** の Issue フォームからプルリクを作れるように、**Settings → Actions → General → Workflow permissions** で **Allow GitHub Actions to create and approve pull requests** をオンにしてください。続けて **Issues → Labels** で `add-song` ラベルを作ってください。フォームはこのラベルを付けますが、ラベルが存在しないと GitHub は何も言わずに外します。このラベルを手で issue に付けても、ワークフローが動きます。
 
 ### 4. ファイルとプレイリストをひもづける
 

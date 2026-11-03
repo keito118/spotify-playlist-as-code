@@ -130,7 +130,7 @@ In **Settings → Secrets and variables → Actions → New repository secret**,
 
 Without secrets, both workflows still run: validation skips the online lookup and sync runs as a dry run.
 
-To let the **🎵 Add a song** issue form open pull requests, turn on **Allow GitHub Actions to create and approve pull requests** in **Settings → Actions → General → Workflow permissions**.
+To let the **🎵 Add a song** issue form open pull requests, turn on **Allow GitHub Actions to create and approve pull requests** in **Settings → Actions → General → Workflow permissions**. Then create a label named `add-song` in **Issues → Labels**. The form adds it, and GitHub drops it silently if it doesn't exist. You can also add the label to any issue by hand to start the workflow.
 
 ### 4. Point a file at a playlist
 
