@@ -4,9 +4,13 @@ name: Add song from issue
 # playlist file. Needs "Allow GitHub Actions to create and approve pull
 # requests" (Settings → Actions → General → Workflow permissions).
 
+# Runs when an issue is opened with a "[Song]" title, or when the "add-song"
+# label is added. The issue form adds the label, and a maintainer can add it
+# to an issue that didn't use the form. The label must exist in the repository,
+# or GitHub drops it from the form silently.
 on:
   issues:
-    types: [opened]
+    types: [opened, labeled]
 
 permissions:
   contents: write
@@ -23,7 +27,10 @@ jobs:
   redirect:
     if: >-
       github.repository == 'keito118/spotify-playlist-as-code' &&
-      (contains(github.event.issue.labels.*.name, 'add-song') || startsWith(github.event.issue.title, '[Song]'))
+      (
+        (github.event.action == 'labeled' && github.event.label.name == 'add-song' && github.event.issue.state == 'open') ||
+        (github.event.action == 'opened' && !contains(github.event.issue.labels.*.name, 'add-song') && startsWith(github.event.issue.title, '[Song]'))
+      )
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
@@ -36,7 +43,10 @@ jobs:
   add:
     if: >-
       github.repository != 'keito118/spotify-playlist-as-code' &&
-      (contains(github.event.issue.labels.*.name, 'add-song') || startsWith(github.event.issue.title, '[Song]'))
+      (
+        (github.event.action == 'labeled' && github.event.label.name == 'add-song' && github.event.issue.state == 'open') ||
+        (github.event.action == 'opened' && !contains(github.event.issue.labels.*.name, 'add-song') && startsWith(github.event.issue.title, '[Song]'))
+      )
     runs-on: ubuntu-latest
     steps:
       - uses: keito118/spotify-playlist-as-code@v1
