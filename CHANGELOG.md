@@ -6,6 +6,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-11-03
+
+### Fixed
+
+- **Add a song from an issue when the form's label is missing.** The *Add song from issue* workflow now also runs when the `add-song` label is added to an open issue, so a maintainer can start it by hand. Before, an issue whose `[Song]` title was changed got no pull request if the `add-song` label didn't exist in the repository, because GitHub drops a missing label from the form without a warning. Copies of the template should create the `add-song` label and copy the updated `add-song.yml`.
+
 ## [1.2.0] - 2026-10-17
 
 ### Added
@@ -56,7 +62,8 @@ First public release.
 - Uses the playlist `/items` endpoints from Spotify's February 2026 Web API changes. Spotify's development mode requires the app owner to have Spotify Premium.
 - Standard library only; Python 3.10 or later.
 
-[Unreleased]: https://github.com/keito118/spotify-playlist-as-code/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/keito118/spotify-playlist-as-code/compare/v1.2.1...HEAD
+[1.2.1]: https://github.com/keito118/spotify-playlist-as-code/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/keito118/spotify-playlist-as-code/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/keito118/spotify-playlist-as-code/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/keito118/spotify-playlist-as-code/compare/v0.1.1...v1.0.0
